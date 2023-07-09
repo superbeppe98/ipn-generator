@@ -59,3 +59,6 @@ for category, ipns in used_ipns.items():
         print(
             f"Prossimo codice IPN libero per la categoria {category}: {new_ipn}")
     print()
+
+
+# aggiungere funzione check cartoni
