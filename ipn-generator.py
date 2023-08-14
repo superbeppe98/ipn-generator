@@ -174,7 +174,7 @@ if num_packaging_needed <= 0:
     while True:
         try:
             num_packaging_needed = int(input(
-                "Enter the number of packaging needed for each category (should be greater than 0): "))
+                "Enter the number of packaging needed for this category (should be greater than 0): "))
             if num_packaging_needed > 0:
                 break
             else:
