@@ -1,5 +1,4 @@
 import json
-
 import sys
 import os
 from dotenv import load_dotenv
@@ -7,16 +6,10 @@ from inventree.api import InvenTreeAPI
 from inventree.part import Part
 from inventree.stock import StockItem
 
-user_category = ""
-num_ipns_to_generate = 0
-num_packaging_needed = 0
-
-if len(sys.argv) >= 2:
-    user_category = sys.argv[1]
-if len(sys.argv) >= 3:
-    num_ipns_to_generate = int(sys.argv[2])
-if len(sys.argv) >= 4:
-    num_packaging_needed = int(sys.argv[3])
+# Parse command line arguments
+user_category = sys.argv[1] if len(sys.argv) >= 2 else ""
+num_ipns_to_generate = int(sys.argv[2]) if len(sys.argv) >= 3 else 0
+num_packaging_needed = int(sys.argv[3]) if len(sys.argv) >= 4 else 0
 
 # Load environment variables from .env file
 load_dotenv()
@@ -24,14 +17,9 @@ load_dotenv()
 # Specify the path to the file containing URLs
 path = "input.json"
 
-# Clear the contents of the input and output files
-with open(path, "w") as f:
+# Clear the contents of the input file
+with open(path, "w"):
     pass
-
-# Create the file if it doesn't exist
-if not os.path.exists(path):
-    with open(path, "w") as f:
-        pass
 
 # Create an instance of the Inventree API
 SERVER_ADDRESS = os.environ.get('INVENTREE_SERVER_ADDRESS')
@@ -47,15 +35,9 @@ try:
     # Order the list of parts by IPN
     parts.sort(key=lambda x: str(x.IPN))
 
-    # Prepare a list of dictionaries containing name, IPN, and ID for each part
-    parts_data = []
-    for part in parts:
-        parts_data.append({
-            "name": part.name,
-            "IPN": part.IPN,
-            "ID": part.pk,
-            "packaging": "",  # Initialize the "packaging" field to empty
-        })
+    # Prepare a list of dictionaries for parts data
+    parts_data = [{"name": part.name, "IPN": part.IPN,
+                   "ID": part.pk, "packaging": ""} for part in parts]
 
     # Retrieve all stock items through the API
     stock_items = StockItem.list(api)
@@ -63,17 +45,13 @@ try:
     # Update the JSON with the "packaging" field from the StockItems API
     for item in parts_data:
         part_ipn = item['IPN']
-
-        # Find the part object that matches the current IPN
         part_obj = next((part for part in parts if part.IPN == part_ipn), None)
 
         if part_obj:
-            # Get the list of stock items for the current part using its part.pk attribute
             stock_items_for_part = [
                 stock_item for stock_item in stock_items if stock_item.part == part_obj.pk]
 
             if stock_items_for_part:
-                # For simplicity, we'll assume only one stock item exists for each part
                 stock_item = stock_items_for_part[0]
                 item['packaging'] = stock_item.packaging
 
@@ -88,31 +66,25 @@ except Exception as e:
 with open(path) as f:
     data = json.load(f)
 
-# Initialize an empty dictionary to track IPNs used in each category
+# Dictionary to track IPNs used in each category
 used_ipns = {}
 
 # Loop through all elements in the JSON file
 for item in data:
-
-    # Extract the IPN code as an integer
     ipn_code = item['IPN'].strip()
-
-    # Extract the first 6 numbers of the IPN code, which represent the category
     ipn_code = str(ipn_code).rjust(11, '0')
     category = ipn_code[:6].replace(' ', '0')
 
-    # Add the IPN code to the dictionary of codes used in the current category
     if category in used_ipns:
         used_ipns[category].add(ipn_code)
     else:
-        used_ipns[category] = set([ipn_code])
+        used_ipns[category] = {ipn_code}
 
 # Calculate the maximum value of the last 5 digits of IPNs for each category
-max_last_5_digits = {}
-for category, ipns in used_ipns.items():
-    max_last_5_digits[category] = max(int(ipn[-5:]) for ipn in ipns)
+max_last_5_digits = {category: max(
+    int(ipn[-5:]) for ipn in ipns) for category, ipns in used_ipns.items()}
 
-# Get the category from the user if not provided through terminal arguments
+# Prompt user for category if not provided through terminal arguments
 if not user_category:
     user_category = input(
         "Enter the category for which you want to generate the next IPN: ")
