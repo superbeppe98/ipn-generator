@@ -184,7 +184,22 @@ for i in range(1, len(numbers)):
             missing_packaging = numbers[i - 1] + j
             missing_packagings.append(missing_packaging)
 
-# Print the requested missing numbers
+# Calculate the missing packaging numbers or generate them if none are available
+if len(missing_packagings) < num_packaging_needed:
+    # Calculate the number of missing packaging numbers needed
+    num_missing_needed = num_packaging_needed - len(missing_packagings)
+
+    # Find the maximum number among the existing numbers
+    max_existing_number = numbers[-1] if numbers else 0
+
+    # Generate the missing packaging numbers
+    generated_missing_packagings = list(
+        range(max_existing_number + 1, max_existing_number + 1 + num_missing_needed))
+
+    # Extend the missing_packagings list with the generated numbers
+    missing_packagings.extend(generated_missing_packagings)
+
+# Print the requested missing numbers or generated missing numbers
 if len(missing_packagings) >= num_packaging_needed:
     for i in range(num_packaging_needed):
         packaging_number = missing_packagings[i]
