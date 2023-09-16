@@ -1,0 +1,2 @@
+dotenv==0.19.1
+inventree==0.4.4
