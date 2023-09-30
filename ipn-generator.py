@@ -112,13 +112,13 @@ while True:
 
 num_generated = 0
 
-# Ordina la lista dei numeri IPN esistenti
+# Sort the list of existing IPN numbers
 ipns_list.sort()
 
-# Inizializza l'indice all'inizio della lista
+# Initialize the index at the beginning of the list
 i = 0
 
-# Controlla se il primo IPN nella lista è maggiore di 1, in tal caso, stampalo
+# Check if the first IPN in the list is greater than 1, if so, print it
 first_ipn = int(ipns_list[0][6:11])
 if first_ipn > 1:
     for ipn in range(1, first_ipn):
@@ -132,11 +132,11 @@ while num_generated < num_ipns_to_generate and i < len(ipns_list) - 1:
     next_ipn = int(ipns_list[i + 1][6:11])
 
     if next_ipn - current_ipn > 1:
-        # Calcola la sequenza di IPN liberi
+        # Calculate the sequence of available IPNs
         start_ipn = current_ipn + 1
         end_ipn = next_ipn - 1
 
-        # Controlla se ci sono due o più IPN liberi di fila
+        # Check if there are two or more consecutive available IPNs
         if end_ipn - start_ipn >= 1:
             for ipn in range(start_ipn, end_ipn + 1):
                 next_ipn_str = str(ipn).rjust(5, '0')
@@ -145,7 +145,7 @@ while num_generated < num_ipns_to_generate and i < len(ipns_list) - 1:
                     f"Next available IPN for category {user_category}: {new_ipn}")
                 num_generated += 1
         else:
-            # Se c'è solo un IPN libero, lo stampa
+            # If there is only one available IPN, print it
             next_ipn_str = str(start_ipn).rjust(5, '0')
             new_ipn = f"{user_category}{next_ipn_str}"
             print(
@@ -154,7 +154,7 @@ while num_generated < num_ipns_to_generate and i < len(ipns_list) - 1:
 
     i += 1
 
-# Se hai generato meno IPN di quanto richiesto, continua da dove hai lasciato
+# If you generated fewer IPNs than requested, continue from where you left off
 while num_generated < num_ipns_to_generate:
     max_existing_ipn = int(ipns_list[-1][6:11])
     next_ipn_str = str(max_existing_ipn + num_generated + 1).rjust(5, '0')
